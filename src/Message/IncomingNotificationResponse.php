@@ -12,9 +12,10 @@
 namespace Omnipay\YooKassa\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
+use Omnipay\Common\Message\NotificationInterface;
 use Omnipay\Common\Message\RequestInterface;
 
-class IncomingNotificationResponse extends AbstractResponse
+class IncomingNotificationResponse extends AbstractResponse implements NotificationInterface
 {
     /**
      * @return RequestInterface|AbstractRequest
@@ -48,5 +49,21 @@ class IncomingNotificationResponse extends AbstractResponse
     public function isSuccessful()
     {
         return $this->getTransactionReference() !== null;
+    }
+
+    public function getTransactionStatus(): string
+    {
+        $status = $this->data['object']['status'] ?? null;
+        return match ($status) {
+            'succeeded' => NotificationInterface::STATUS_COMPLETED,
+            'pending', 'waiting_for_capture' => NotificationInterface::STATUS_PENDING,
+            'canceled', 'failed' => NotificationInterface::STATUS_FAILED,
+            default => NotificationInterface::STATUS_PENDING,
+        };
+    }
+
+    public function getMessage(): string
+    {
+        return $this->data['object']['description'] ?? '';
     }
 }

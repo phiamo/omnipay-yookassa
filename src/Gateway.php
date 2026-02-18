@@ -12,8 +12,11 @@
 namespace Omnipay\YooKassa;
 
 use Omnipay\Common\AbstractGateway;
+use Omnipay\Common\Exception\BadMethodCallException;
 use Omnipay\Common\Http\ClientInterface;
 use Omnipay\Common\Message\AbstractRequest;
+use Omnipay\Common\Message\NotificationInterface;
+use Omnipay\Common\Message\RequestInterface;
 use Omnipay\YooKassa\Message\CaptureRequest;
 use Omnipay\YooKassa\Message\CaptureResponse;
 use Omnipay\YooKassa\Message\DetailsRequest;
@@ -30,7 +33,7 @@ class Gateway extends AbstractGateway
 {
     private Client|null $yooKassaClient = null;
 
-    public function __construct(ClientInterface $httpClient = null, HttpRequest $httpRequest = null)
+    public function __construct(?ClientInterface $httpClient = null, ?HttpRequest $httpRequest = null)
     {
         parent::__construct($httpClient, $httpRequest);
     }
@@ -117,6 +120,69 @@ class Gateway extends AbstractGateway
     public function notification(array $options = []): DetailsResponse|AbstractRequest
     {
         return $this->createRequest(IncomingNotificationRequest::class, $this->getParametersClient($options));
+    }
+
+    /**
+     * Receive and handle an instant payment notification (IPN).
+     * Delegates to notification() and returns the sent response.
+     */
+    public function acceptNotification(array $options = []): NotificationInterface
+    {
+        return $this->notification($options)->send();
+    }
+
+    /** @throws BadMethodCallException */
+    public function authorize(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support authorize()');
+    }
+
+    /** @throws BadMethodCallException */
+    public function completeAuthorize(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support completeAuthorize()');
+    }
+
+    /** @throws BadMethodCallException */
+    public function completePurchase(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support completePurchase()');
+    }
+
+    /** @throws BadMethodCallException */
+    public function refund(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support refund()');
+    }
+
+    /** @throws BadMethodCallException */
+    public function fetchTransaction(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support fetchTransaction()');
+    }
+
+    /** @throws BadMethodCallException */
+    public function void(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support void()');
+    }
+
+    /** @throws BadMethodCallException */
+    public function createCard(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support createCard()');
+    }
+
+    /** @throws BadMethodCallException */
+    public function updateCard(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support updateCard()');
+    }
+
+    /** @throws BadMethodCallException */
+    public function deleteCard(array $options = []): RequestInterface
+    {
+        throw new BadMethodCallException('YooKassa gateway does not support deleteCard()');
     }
 
     private function getParametersClient(array $options): array
